@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-//import 'dart:io';
+import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 //import 'package:firebase_core/firebase_core.dart';
 import 'package:http/http.dart';
+import 'package:http/http.dart' as http;
 //import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 //import 'package:firebase_messaging/firebase_messaging.dart';
 
@@ -10,8 +11,8 @@ ImagePicker picker = ImagePicker();
 String _convertTo = "txt";
 
 Future getData(url) async {
-Response response = await get(url);
-return response.body;
+  Response response = await get(url);
+  return response.body;
 }
 
 void main() {
@@ -111,10 +112,27 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  void _sendData() {
+  void _sendData() async {
     setState(() {
       _convertTo == "wtf";
     });
+
+    http.MultipartRequest("POST", Uri.parse(uri));
+
+    // http.MultipartRequest request = http.MultipartRequest('POST', Uri.parse(url));
+
+    // request.files.add(
+    //   await http.MultipartFile.fromPath(
+    //     'images',
+    //     File('kitten1.jpg').path,
+    //     contentType: MediaType('application', 'jpeg'),
+    //   ),
+    //   await http
+    // );
+
+    // http.StreamedResponse r = await request.send();
+    // print(r.statusCode);
+    // print(await r.stream.transform(utf8.decoder).join());
   }
 
   @override
