@@ -172,6 +172,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // message = resJson[0];
     // log('msg: $message');
     // setState(() {});
+    
 // var request = http.MultipartRequest(
 //       'POST',
 //       Uri.parse("https://4c5a-194-169-191-205.eu.ngrok.io/upload"),
@@ -194,28 +195,16 @@ class _MyHomePageState extends State<MyHomePage> {
 //     });
 
 
-  // var request = http.MultipartRequest('POST', Uri.parse(myController.text+"/upload"));
-  // request.files.add(
-  //   http.MultipartFile(
-  //     'image',
-  //     File(filename).readAsBytes().asStream(),
-  //     File(filename).lengthSync(),
-  //     filename: filename.split("/").last
-  //   )
-  // );
-  // var res = await request.send();
-
-    final api = Uri.parse(myController.text+"/upload");
-   Map<String, dynamic> body = {'image': imageFile};
-    final response = await http.post(
-      api,
-      body: body,
-    );
-
-    if (response.statusCode == 200) {
-      final responseJson = json.decode(response.body);
-      print(responseJson);
-    }
+  var request = http.MultipartRequest('POST', Uri.parse(myController.text+"/upload"));
+  request.files.add(
+    http.MultipartFile(
+      'image',
+      File(filename).readAsBytes().asStream(),
+      File(filename).lengthSync(),
+      filename: filename.split("/").last
+    )
+  );
+  var res = await request.send();
 
   }
 
