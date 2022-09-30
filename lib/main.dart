@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
@@ -6,10 +7,45 @@ import 'package:http/http.dart';
 import 'package:http/http.dart' as http;
 //import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 //import 'package:firebase_messaging/firebase_messaging.dart';
+import 'dart:developer';
 
-ImagePicker picker = ImagePicker();
+File? imageFile;
 String _convertTo = "txt";
+String? message = null;
+ImagePicker picker = new ImagePicker();
+final myController = TextEditingController();
 
+//
+class MyCustomForm extends StatefulWidget {
+  const MyCustomForm({super.key});
+
+  @override
+  State<MyCustomForm> createState() => _MyCustomFormState();
+}
+
+// Define a corresponding State class.
+// This class holds the data related to the Form.
+class _MyCustomFormState extends State<MyCustomForm> {
+  // Create a text controller and use it to retrieve the current value
+  // of the TextField.
+
+  @override
+  void dispose() {
+    // Clean up the controller when the widget is disposed.
+    myController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      title: 'Retrieve Text Input',
+      home: MyCustomForm(),
+    );
+  }
+}
+
+//
 Future getData(url) async {
   Response response = await get(url);
   return response.body;
@@ -27,16 +63,15 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  XFile? imageFile;
-
-  _openGallery() async {
-    imageFile = await picker.pickImage(source: ImageSource.gallery);
-    this.setState(() {});
-  }
-
-  _openCamera() async {
-    imageFile = await picker.pickImage(source: ImageSource.camera);
-    this.setState(() {});
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.green,
+      ),
+      home: const MyHomePage(title: 'Convertino'),
+    );
   }
 
   Future<void> _showChoiceDialog(BuildContext context) {
@@ -50,13 +85,13 @@ class _MyAppState extends State<MyApp> {
                   GestureDetector(
                     child: Text("Gallery"),
                     onTap: () {
-                      _openGallery();
+                      _openGallery(context);
                     },
                   ),
                   GestureDetector(
                     child: Text("Camera"),
                     onTap: () {
-                      _openCamera();
+                      _openCamera(context);
                     },
                   )
                 ],
@@ -66,15 +101,20 @@ class _MyAppState extends State<MyApp> {
         });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.green,
-      ),
-      home: const MyHomePage(title: 'Convertino'),
-    );
+  _openGallery(BuildContext context) async {
+    var pic = await picker.pickImage(source: ImageSource.gallery);
+    imageFile = File(pic!.path);
+    Navigator.of(context).pop();
+  }
+
+  _openCamera(BuildContext context) async {
+    var pic = await picker.pickImage(source: ImageSource.camera);
+    imageFile = File(pic!.path);
+    Navigator.of(context).pop();
+    var xxx = imageFile!.path.split("/").last;
+    var xxxx = imageFile!.length();
+    log('img: $xxx');
+    log('img: $xxxx');
   }
 }
 
@@ -112,27 +152,71 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  void _sendData() async {
-    setState(() {
-      _convertTo == "wtf";
-    });
+  void _sendData(String filename, String url) async {
 
-    http.MultipartRequest("POST", Uri.parse(uri));
+    // String url = "https://700f-194-169-191-205.eu.ngrok.io";
+    // var request = http.MultipartRequest(
+    //     "POST", Uri.parse("https://700f-194-169-191-205.eu.ngrok.io/upload"));
+    // var headers = {"Content-type": "multipart/form/data"};
+    // request.files.add(http.MultipartFile(
+    //     'image', imageFile!.readAsBytes().asStream(), imageFile!.lengthSync(),
+    //     filename: imageFile!.path.split("/").last));
+    // //problem aici poate
 
-    // http.MultipartRequest request = http.MultipartRequest('POST', Uri.parse(url));
+    // request.headers.addAll(headers);
+    // var response = await request.send();
+    // http.Response res = await http.Response.fromStream(response);
+    // var resJson/*= jsonDecode(res.body);
+    // var pdfText=*/
+    //     = await res.body;
+    // message = resJson[0];
+    // log('msg: $message');
+    // setState(() {});
+// var request = http.MultipartRequest(
+//       'POST',
+//       Uri.parse("https://4c5a-194-169-191-205.eu.ngrok.io/upload"),
+//     );
+//     Map<String, String> headers = {"Content-type": "multipart/form-data"};
+//     request.files.add(
+//       http.MultipartFile(
+//         'image',
+//         imageFile!.readAsBytes().asStream(),
+//         imageFile!.lengthSync(),
+//         filename: imageFile!.path.split('/').last,
+//       ),
+//     );
+//     request.headers.addAll(headers);
+//     print("request: " + request.toString());
+//     var res = await request.send();
+//     http.Response response = await http.Response.fromStream(res);
+//     setState(() {
+//       var resJson = response.body;
+//     });
 
-    // request.files.add(
-    //   await http.MultipartFile.fromPath(
-    //     'images',
-    //     File('kitten1.jpg').path,
-    //     contentType: MediaType('application', 'jpeg'),
-    //   ),
-    //   await http
-    // );
 
-    // http.StreamedResponse r = await request.send();
-    // print(r.statusCode);
-    // print(await r.stream.transform(utf8.decoder).join());
+  // var request = http.MultipartRequest('POST', Uri.parse(myController.text+"/upload"));
+  // request.files.add(
+  //   http.MultipartFile(
+  //     'image',
+  //     File(filename).readAsBytes().asStream(),
+  //     File(filename).lengthSync(),
+  //     filename: filename.split("/").last
+  //   )
+  // );
+  // var res = await request.send();
+
+    final api = Uri.parse(myController.text+"/upload");
+   Map<String, dynamic> body = {'image': imageFile};
+    final response = await http.post(
+      api,
+      body: body,
+    );
+
+    if (response.statusCode == 200) {
+      final responseJson = json.decode(response.body);
+      print(responseJson);
+    }
+
   }
 
   @override
@@ -146,6 +230,13 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            TextField(
+              controller: myController,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                hintText: 'uritardid',
+              ),
+            ),
             TextButton(
               style: TextButton.styleFrom(
                 primary: Colors.blue,
@@ -192,7 +283,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 onSurface: Colors.purpleAccent,
               ),
               onPressed: () {
-                _sendData();
+                _sendData(imageFile!.path,myController.text+"/upload");
               },
               child: Text('Convert'),
             )

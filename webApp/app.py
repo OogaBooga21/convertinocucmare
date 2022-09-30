@@ -1,3 +1,4 @@
+from cmath import log
 from flask import Flask, request, jsonify
 import werkzeug
 import string
@@ -47,7 +48,7 @@ def get_doc(image_file, computervision_client):
         doc.save(image_file + ".docx")
 
 @app.route('/upload', methods=["POST"])
-def uploa():
+def upload():
     if(request.method == "POST"):
         imageFile = request.files['image']
         filename = werkzeug.utils.secure_filename(imageFile.filename)
