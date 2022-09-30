@@ -6,6 +6,7 @@ import time
 from dotenv import load_dotenv
 import os
 import docx
+from fpdf import FPDF
 
 def main():
     try:
@@ -17,51 +18,57 @@ def main():
         computervision_client = ComputerVisionClient(endpoint, CognitiveServicesCredentials(key))
         # Extract test
         images_folder = os.path.join (os.path.dirname(os.path.abspath(__file__)), "images")
-        read_image_path = os.path.join (images_folder, "test5.png")
-        get_doc(read_image_path,computervision_client)
-        print('\n')
         read_image_path = os.path.join (images_folder, "test4.png")
         get_doc(read_image_path,computervision_client)
+        get_pdf(read_image_path,computervision_client)
+        
     
     except Exception as ex:
         print(ex)
 
 
 def get_text(image_file,computervision_client):
-    # Open local image file
     
     with open(image_file, "rb") as image:
-        # Call the API
         read_response = computervision_client.read_in_stream(image, raw=True)
 
-    # Get the operation location (URL with an ID at the end)
     read_operation_location = read_response.headers["Operation-Location"]
-    # Grab the ID from the URL
     operation_id = read_operation_location.split("/")[-1]
+    filename = os.path.splitext(image_file)[0]
 
-    # Retrieve the results 
     while True:
         read_result = computervision_client.get_read_result(operation_id)
         if read_result.status.lower() not in ['notstarted', 'running']:
             break
         time.sleep(1)
     
-    with open(image_file + '.txt', 'w') as f:
-    # Get the detected text
+    with open(filename + '.txt', 'w') as f:
         if read_result.status == OperationStatusCodes.succeeded:
             for page in read_result.analyze_result.read_results:
                 for line in page.lines:
-                    # Print line
                     f.write(line.text + "\n")
 
 def get_doc(image_file, computervision_client):
     get_text(image_file, computervision_client)
+    filename = os.path.splitext(image_file)[0]
     doc = docx.Document()
-    with open(image_file + ".txt", 'r', encoding='utf-8') as openfile:
+    with open(filename + ".txt", 'r', encoding='utf-8') as openfile:
         line = openfile.read()
         doc.add_paragraph(line)
-        doc.save(image_file + ".docx")
-                
+        doc.save(filename + ".docx")
+
+def get_pdf(image_file, computervision_client):
+    get_text(image_file, computervision_client)
+    filename = os.path.splitext(image_file)[0]
+    pdf=FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size = 15)
+    with open(filename + ".txt", 'r', encoding='utf-8') as openfile:
+        line = openfile.read()
+        pdf.cell(200, 10, txt = line,
+            ln = 1, align = 'C')
+
+    pdf.output(filename+".pdf")              
 
 
 if __name__ == "__main__":

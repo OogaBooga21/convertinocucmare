@@ -83,12 +83,15 @@ class _MyAppState extends State<MyApp> {
               child: ListBody(
                 children: <Widget>[
                   GestureDetector(
+                    padding: EdgeInsets.all(15), //apply padding to all four sides
                     child: Text("Gallery"),
+
                     onTap: () {
                       _openGallery(context);
                     },
                   ),
                   GestureDetector(
+                    padding: EdgeInsets.all(15), //apply padding to all four sides
                     child: Text("Camera"),
                     onTap: () {
                       _openCamera(context);
@@ -223,7 +226,7 @@ class _MyHomePageState extends State<MyHomePage> {
               controller: myController,
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
-                hintText: 'uritardid',
+                hintText: 'server url',
               ),
             ),
             TextButton(
